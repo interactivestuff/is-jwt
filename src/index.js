@@ -1,2 +1,2 @@
 
-console.log("hello");
+module.exports = require('./lib/jwt-utils');
