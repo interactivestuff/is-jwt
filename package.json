@@ -1,0 +1,27 @@
+{
+  "name": "is-jwt-utils",
+  "version": "1.0.0",
+  "description": "Just a jwt library without dependencies",
+  "main": "src/index.js",
+  "devDependencies": {
+    "nodemon": "^1.9.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/interactivestuff/is-jwt.git"
+  },
+  "keywords": [
+    "jwt",
+    "encode",
+    "decode"
+  ],
+  "author": "Simone Carcone <s.carcone@interactive-stuff.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/interactivestuff/is-jwt/issues"
+  },
+  "homepage": "https://github.com/interactivestuff/is-jwt#readme"
+}
