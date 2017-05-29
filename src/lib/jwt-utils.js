@@ -12,6 +12,8 @@ module.exports.encode = function encode(timeOptions, claims, key){
 
     const now = Math.floor(new Date() / 1000);
 
+    if(timeOptions == null) timeOptions = {};
+
     if(timeOptions.issuedAt === true) payload.iat = now;
     if(timeOptions.notBefore > 0) payload.nbf = now+timeOptions.notBefore;
     if(timeOptions.expiration > 0) payload.exp = now+timeOptions.expiration;
