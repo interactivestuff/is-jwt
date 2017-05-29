@@ -1,6 +1,6 @@
 {
   "name": "is-jwt-utils",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Just a jwt library without dependencies",
   "main": "src/index.js",
   "devDependencies": {

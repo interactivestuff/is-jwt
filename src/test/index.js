@@ -1,13 +1,50 @@
 'use strict'
 
 const jwt = require('../lib/jwt-utils');
-const expect = require('chai').expect
+const expect = require('chai').expect;
 
 
 describe('jwt-utils', () => {  
 
+    it('should export encode function', () => {
+        expect(jwt.encode).to.be.a('function');
+    });
+
     it('should export decode function', () => {
         expect(jwt.decode).to.be.a('function');
+    });
+
+    it('should encode and decode a token', () => {
+
+        const key = "secret";
+
+        const timeOptions = {  "issuedAt" : true,  "notBefore" : 0, "expiration" : 60*60 };
+        const claims = {"claim1" : "a", "claim2" : "b"};
+        
+        const token = jwt.encode(timeOptions, claims, key);
+        const decodedPayload = jwt.decode(token, key);
+
+        expect(decodedPayload).to.have.property('claim1').to.be.equal('a');
+        expect(decodedPayload).to.have.property('claim2').to.be.equal('b');
+
+    });
+
+});
+
+
+describe('encode', () => {
+    
+    const key = "secret";
+
+    it('sholud return a string', () => {
+
+        const timeOptions = { "issuedAt" : true, "notBefore" : 0, "expiration" : 60*60 };
+        const claims = {"claim1" : "a", "claim2" : "b"};
+
+        const token = jwt.encode(timeOptions, claims, key);
+
+        expect(token).to.be.a('String');
+
     });
 
 });
@@ -15,7 +52,7 @@ describe('jwt-utils', () => {
 
 describe('decode', () => {
 
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ";
+    const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImVtYWlsQGVtYWlsLmNvbSIsImlzQWRtaW4iOnRydWUsImlhdCI6MTQ5NjA1MTg4MSwiZXhwIjoxNDk2MDU1NDgxfQ.76D_kPKDwlNgbpV8fScLoF-a_GjZq7UWP8wZ4grhzWY";
     const secretKey = "secret";
     const wrongFormatToken = "asdsad.dfdfd";
     const wrongJsonToken = "asdsad.dfdfd.sdfsdf";
@@ -54,6 +91,41 @@ describe('decode', () => {
 
         let call = () => jwt.decode(token, wrongSecretKey);
         expect(call).to.throw(Error, /Signature verification failed/);
+
+    });
+
+
+    it('should throw an error because the token is not yet valid', () => {
+
+        const timeOptions = {  "issuedAt" : true,  "notBefore" : 30, "expiration" : 60*60 };
+        const claims = {"claim1" : "a", "claim2" : "b"};
+        
+        const token = jwt.encode(timeOptions, claims, secretKey);
+
+        let call = () => jwt.decode(token, secretKey);
+        expect(call).to.throw(Error, /This token can not be used before:/);
+
+    });
+
+
+    it('should throw an error because the token is expired', () => {
+
+        const timeOptions = {  "issuedAt" : true,  "notBefore" : 0, "expiration" : 1 };
+        const claims = {"claim1" : "a", "claim2" : "b"};
+        
+        const token = jwt.encode(timeOptions, claims, secretKey);
+        
+        const start = Math.floor(new Date());
+        let now = 0;
+
+        do{
+            
+            now = Math.floor(new Date());
+
+        }while(now - start < 1500 );
+
+        let call = () => jwt.decode(token, secretKey);
+        expect(call).to.throw(Error, /This token is expired at:/);
 
     });
 

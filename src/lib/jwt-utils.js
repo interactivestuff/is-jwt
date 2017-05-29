@@ -2,30 +2,58 @@
 const crypto = require('crypto');
 
 
-//public functions
+module.exports.encode = function encode(timeOptions, claims, key){
+
+    let header = { typ: 'JWT', alg: 'HS256' };
+    let headerJson = JSON.stringify(header);
+    let headerBase64 = base64urlEncode(headerJson);
+
+    let payload = claims;
+
+    const now = Math.floor(new Date() / 1000);
+
+    if(timeOptions.issuedAt === true) payload.iat = now;
+    if(timeOptions.notBefore > 0) payload.nbf = now+timeOptions.notBefore;
+    if(timeOptions.expiration > 0) payload.exp = now+timeOptions.expiration;
+
+    let payloadJson = JSON.stringify(payload);
+    let payloadBase64 = base64urlEncode(payloadJson);
+
+    let signatureBase64 = sign(headerBase64, payloadBase64, key);
+
+    return headerBase64+"."+payloadBase64+"."+signatureBase64;
+
+}//encode
 
 
 module.exports.decode = function decode(token, key) {
 
-    let parts = token.split(".");
+    let parts = token.split('.');
 
     if (parts.length !== 3) throw new Error('Wrong token format');
 
-    let headerStr = parts[0];
-    let claimStr = parts[1];
-    let signStr = parts[2];
+    let header = parts[0];
+    let payload = parts[1];
+    let signature = parts[2];
 
-    var headerJson = JSON.parse(base64urlDecode(headerStr));
+    let headerBase64 = base64urlDecode(header);
+    var headerJson = JSON.parse(headerBase64);
 
-    if(headerJson.alg !== "HS256") throw new Error('Algorithm not supported');
+    if(headerJson.alg !== 'HS256') throw new Error('Algorithm not supported');
 
-    let testSignStr = getSign(headerStr, claimStr, key);
+    let testSignature = sign(header, payload, key);
 
-    if(testSignStr !== signStr) throw new Error('Signature verification failed');
+    if(testSignature !== signature) throw new Error('Signature verification failed');
 
-    let claimJson = JSON.parse(base64urlDecode(claimStr));
+    let payloadBase64 = base64urlDecode(payload);
+    let payloadJson = JSON.parse(payloadBase64);
 
-    return claimJson;
+    const now = Math.floor(new Date() / 1000);
+
+    if(payloadJson.exp !== null && now > payloadJson.exp) throw new Error('This token is expired at: '+payloadJson.exp);
+    if(payloadJson.nbf !== null && now < payloadJson.nbf) throw new Error('This token can not be used before: '+payloadJson.nbf);
+
+    return payloadJson;
 
 };
 
@@ -33,15 +61,15 @@ module.exports.decode = function decode(token, key) {
 //private functions
 
 
-function getSign(header, claim, key){
+function sign(header, payload, key){
     
     let hmac = crypto.createHmac('sha256', key);
-    hmac.update(header+"."+claim); 
+    hmac.update(header+"."+payload); 
     let base64 = hmac.digest('base64');
 
     return base64UrlEscape(base64);
 
-}//getSign
+}//sign
 
 
 function base64urlDecode(str) {
