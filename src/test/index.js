@@ -110,7 +110,7 @@ describe('decode', () => {
 
     it('should throw an error because the token is expired', () => {
 
-        const timeOptions = {  "issuedAt" : true,  "notBefore" : 0, "expiration" : 1 };
+        const timeOptions = { "issuedAt" : true,  "notBefore" : 0, "expiration" : 1 };
         const claims = {"claim1" : "a", "claim2" : "b"};
         
         const token = jwt.encode(timeOptions, claims, secretKey);
@@ -122,7 +122,7 @@ describe('decode', () => {
             
             now = Math.floor(new Date());
 
-        }while(now - start < 1500 );
+        }while(now - start < 2000 );
 
         let call = () => jwt.decode(token, secretKey);
         expect(call).to.throw(Error, /This token is expired at:/);
