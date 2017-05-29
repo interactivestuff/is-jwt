@@ -24,14 +24,14 @@ console.log(payload);
 
 ### Time options
 
-The time options could have 3 properties:
+The timeOptions parameter, of the encode function, could have 3 properties:
 - issuedAt
 - notBefore
 - expiration
 
-"issuedAt" is a boolean, and if is set to true, the iss claim is added to the token.
-"notBefore" indicates the number of seconds, from this moment, that have to be waited before the token can be valid.
-"expiraton" indicates the number of seconds, from this moment, that the token will be valid.
+"issuedAt" is a boolean, and if is set to true, the iss claim is added to the token.  
+"notBefore" indicates the number of seconds, from this moment, that have to be waited before the token can be valid.  
+"expiraton" indicates the number of seconds, from this moment, that the token will be valid.  
 
 ### Algorithms
 
